@@ -1,13 +1,13 @@
 from aiomqtt import Client
 import asyncio
 import sys
-from config import MQTT_BROKER, MQTT_PORT, TOPIC_PUB, TOPIC_SUB, MQTT_USERNAME, MQTT_PASSWORD, ssl_context
+from config import MQTT_BROKER, MQTT_PORT, TOPIC_PUB, TOPIC_SUB, MQTT_USERNAME, MQTT_PASSWORD, ssl_context, COMPORT
 from manager import Ports
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-serial_port = Ports(port_name='/dev/ttyACM0', baud_rate=9600)
+serial_port = Ports(port_name=COMPORT, baud_rate=9600)
 
 async def main():
     async with Client(
@@ -27,7 +27,7 @@ async def main():
             serial_response = serial_port.send_command(command)
             if isinstance(serial_response, list):
                 serial_response = "\n".join(serial_response)
-            await client.publish(TOPIC_PUB, serial_response.encode())
+            await client.publish(TOPIC_PUB, 'caught'.encode())
             print(f"Ответ отправлен: {serial_response}")
 
 if __name__ == "__main__":

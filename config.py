@@ -1,15 +1,15 @@
 import ssl
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 
 COMPORT = os.getenv('COMPORT')
-
-MQTT_BROKER = '3dc6927eb43a444ebbac794961b9b974.s1.eu.hivemq.cloud'
-MQTT_PORT = 8883
-TOPIC_PUB = 'devices/response'
-TOPIC_SUB = 'devices/control'
-MQTT_USERNAME = 'hivemq.webclient.1742899651883'
-MQTT_PASSWORD = '2j3$<7SYRA&m!v9wLVfn'
+MQTT_BROKER = os.getenv('MQTT_BROKER')
+MQTT_PORT = int(os.getenv('MQTT_PORT'))
+TOPIC_SUB = os.getenv('TOPIC_SUB')
+TOPIC_PUB = os.getenv('TOPIC_PUB')
+MQTT_USERNAME = os.getenv('MQTT_USERNAME')
+MQTT_PASSWORD = os.getenv('MQTT_PASSWORD')
 
 ssl_context = ssl.create_default_context()

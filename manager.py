@@ -14,7 +14,6 @@ class Ports:
         return True
 
     def send_command(self, command):
-        self.clear_buffer()
         response_lines = []
         self.ser.write((command + '\n').encode())
         time.sleep(1)

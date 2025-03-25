@@ -1,0 +1,5 @@
+pip~=24.2
+paho-mqtt~=2.1.0
+pyserial~=3.5
+aiomqtt~=2.3.0
+python-dotenv~=1.1.0

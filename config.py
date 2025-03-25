@@ -1,4 +1,9 @@
 import ssl
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+COMPORT = os.getenv('COMPORT')
 
 MQTT_BROKER = '3dc6927eb43a444ebbac794961b9b974.s1.eu.hivemq.cloud'
 MQTT_PORT = 8883

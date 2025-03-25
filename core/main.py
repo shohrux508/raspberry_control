@@ -1,47 +1,35 @@
+from aiomqtt import Client
 import asyncio
 import sys
-from aiomqtt import Client
-
-from core.config import MQTT_BROKER, MQTT_PORT, MQTT_USERNAME, MQTT_PASSWORD, ssl_context, TOPIC_SUB, TOPIC_PUB
+from core.config import MQTT_BROKER, MQTT_PORT, TOPIC_PUB, TOPIC_SUB, MQTT_USERNAME, MQTT_PASSWORD, ssl_context
+from core.manager import Ports
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+serial_port = Ports(port_name='COM11', baud_rate=9600)
 
 async def main():
-    client = Client(
+    async with Client(
         hostname=MQTT_BROKER,
         port=MQTT_PORT,
         username=MQTT_USERNAME,
         password=MQTT_PASSWORD,
-        tls_context=ssl_context
-    )
+        tls_context=ssl_context,
+    ) as client:
 
-    async with client:
         await client.subscribe(TOPIC_SUB)
-        print(f"{TOPIC_SUB} -- subscribed successfully")
+        print(f"Подписан на {TOPIC_SUB}")
 
         async for msg in client.messages:
             command = msg.payload.decode()
-            print(f"Received command: {command}")
-
-            await asyncio.sleep(1)
-            response = f"Done: {command}"
-            await client.publish(TOPIC_PUB, response.encode())
-            print(f"Answered: {response}")
-
-
-async def send_command(text: str):
-    async with Client(
-            hostname=MQTT_BROKER,
-            port=MQTT_PORT,
-            username=MQTT_USERNAME,
-            password=MQTT_PASSWORD,
-            tls_context=ssl_context
-    ) as client:
-        await client.publish(TOPIC_SUB, text.encode())
-        print(f"Command sent to {TOPIC_SUB}: {text}")
-
+            print(f"Получена команда: {command}")
+            serial_response = serial_port.send_command(command)
+            if isinstance(serial_response, list):
+                serial_response = "\n".join(serial_response)
+            await client.publish(TOPIC_PUB, serial_response.encode())
+            print(f"Ответ отправлен: {serial_response}")
 
 if __name__ == "__main__":
     asyncio.run(main())
+

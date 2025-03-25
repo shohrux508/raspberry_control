@@ -1,10 +1,10 @@
-import serial
-import time
+from serial import Serial
 
+import time
 
 class Ports:
     def __init__(self, port_name, baud_rate):
-        self.ser = serial.Serial(port_name, baud_rate)
+        self.ser = Serial(port_name, baud_rate)
 
     def clear_buffer(self):
         self.ser.close()

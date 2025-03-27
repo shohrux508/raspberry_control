@@ -1,4 +1,3 @@
-
 from aiomqtt import Client
 from serial import Serial
 
@@ -52,7 +51,6 @@ class manageBroker:
             await client.publish(topic, str(command))
             print(f'Отправлено: {command}')
 
-
     @staticmethod
     async def subscribe(topic: str):
         async with Client(
@@ -66,8 +64,3 @@ class manageBroker:
             print('Слушаю: ')
             async for msg in client.messages:
                 yield msg.payload.decode()
-
-
-
-
-

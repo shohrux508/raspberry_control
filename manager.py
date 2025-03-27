@@ -23,19 +23,18 @@ class Ports:
         time.sleep(1)
 
         while self.ser.in_waiting > 0:  # Пока есть данные в буфере
-            print('working!')
             line = self.ser.readline().decode().strip()
-            if line:
+            if line and '-' in line:
                 response_lines.append(line)
         return response_lines
 
-    def read(self):
+    def read_commands(self):
         response_lines = []
         while self.ser.in_waiting > 0:  # Пока есть данные в буфере
             line = self.ser.readline().decode().strip()
-            if line:
+            if line and '-' in line:
                 response_lines.append(line)
-        return '\n'.join(response_lines)
+        return response_lines
 
 
 class manageBroker:

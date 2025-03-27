@@ -19,10 +19,13 @@ async def handle_subscription():
 async def main():
     asyncio.create_task(handle_subscription())
     while True:
-        await asyncio.sleep(5)  # задержка между публикациями
-        response = (serial_port.send_command(command='get-status'))
-        await manageBroker.publish(topic='devices/1/response', command=response)
-        print("Published: True")
+        await asyncio.sleep(3)  # задержка между публикациями
+        response = serial_port.read_commands()
+        if len(response) >= 1:
+            print(f"ARDUINO: {response}")
+        response_text = ','.join(response)
+        if '-' in response_text:
+            await manageBroker.publish(topic='devices/1/response', command=response_text)
 
 
 if __name__ == "__main__":

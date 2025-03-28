@@ -55,7 +55,7 @@ class Ports:
         """
         try:
             await asyncio.to_thread(self.ser.write, (command + '\n').encode())
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
             return await self._read_response()
         except SerialException as e:
             logger.error(f"Ошибка при отправке команды '{command}': {e}")

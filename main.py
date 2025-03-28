@@ -52,13 +52,13 @@ class Application:
         self.subscription_task = asyncio.create_task(self.handle_subscription())
         try:
             while not self.shutdown_event.is_set():
-                await asyncio.sleep(3)  # Задержка между публикациями
                 response = await self.serial_port.read_commands()
                 if response:
                     logger.info("ARDUINO: %s", response)
                 response_text = ','.join(response)
                 if '-' in response_text:
                     await ManageBroker.publish(topic=f'devices/{self.device_id}/response', command=response_text)
+                await asyncio.sleep(3)
         except Exception as e:
             logger.error("Error in main loop: %s", e)
         finally:

@@ -12,12 +12,14 @@ logger = logging.getLogger(__name__)
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+
 class Application:
     """
     Класс Application инкапсулирует основную логику приложения,
     включая инициализацию последовательного порта, управление подписками MQTT
     и основным циклом обработки команд.
     """
+
     def __init__(self, comport: str, device_id: str, baud_rate: int = 9600):
         """
         Инициализирует компоненты приложения.
@@ -55,9 +57,9 @@ class Application:
                 response = await self.serial_port.read_commands()
                 if response:
                     logger.info("ARDUINO: %s", response)
-                response_text = ','.join(response)
-                if '-' in response_text:
-                    await ManageBroker.publish(topic=f'devices/{self.device_id}/response', command=response_text)
+                for text in response:
+                    if '-' in text:
+                        await ManageBroker.publish(topic=f'devices/{self.device_id}/response', command=text)
                 await asyncio.sleep(3)
         except Exception as e:
             logger.error("Error in main loop: %s", e)
@@ -73,6 +75,7 @@ class Application:
         logger.info("Shutdown signal received.")
         self.shutdown_event.set()
 
+
 def setup_signal_handlers(app: Application, loop: asyncio.AbstractEventLoop):
     """
     Устанавливает обработчики сигналов для корректного завершения приложения.
@@ -87,8 +90,10 @@ def setup_signal_handlers(app: Application, loop: asyncio.AbstractEventLoop):
             # На Windows add_signal_handler может быть не поддержан
             pass
 
+
 if __name__ == "__main__":
     logger.info("Working!")
+
     app = Application(comport=COMPORT, device_id=DEVICE_ID)
     loop = asyncio.get_event_loop()
     setup_signal_handlers(app, loop)

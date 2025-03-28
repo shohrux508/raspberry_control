@@ -1,7 +1,6 @@
 import asyncio
 import sys
-
-from config import COMPORT
+from config import COMPORT, DEVICE_ID
 from manager import Ports, manageBroker
 
 if sys.platform == "win32":
@@ -11,7 +10,7 @@ serial_port = Ports(port_name=COMPORT, baud_rate=9600)
 
 
 async def handle_subscription():
-    async for message in manageBroker.subscribe(topic='devices/1/control'):
+    async for message in manageBroker.subscribe(topic=f'devices/{DEVICE_ID}/control'):
         serial_port.send_command(command=message)
         print("Received:", message)
 
@@ -25,7 +24,7 @@ async def main():
             print(f"ARDUINO: {response}")
         response_text = ','.join(response)
         if '-' in response_text:
-            await manageBroker.publish(topic='devices/1/response', command=response_text)
+            await manageBroker.publish(topic=f'devices/{DEVICE_ID}/response', command=response_text)
 
 
 if __name__ == "__main__":

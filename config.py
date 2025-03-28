@@ -5,6 +5,7 @@ import os
 load_dotenv()
 
 COMPORT = os.getenv('COMPORT')
+DEVICE_ID = os.getenv("DEVICE_ID")
 MQTT_BROKER = os.getenv('MQTT_BROKER')
 MQTT_PORT = int(os.getenv('MQTT_PORT'))
 TOPIC_SUB = os.getenv('TOPIC_SUB')

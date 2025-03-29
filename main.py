@@ -92,8 +92,6 @@ def setup_signal_handlers(app: Application, loop: asyncio.AbstractEventLoop):
 
 
 if __name__ == "__main__":
-    logger.info("Working!")
-
     app = Application(comport=COMPORT, device_id=DEVICE_ID)
     loop = asyncio.get_event_loop()
     setup_signal_handlers(app, loop)

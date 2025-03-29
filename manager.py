@@ -2,8 +2,9 @@ import logging
 import asyncio
 from aiomqtt import Client
 from serial import Serial, SerialException
-
-from config import MQTT_BROKER, MQTT_PORT, MQTT_USERNAME, MQTT_PASSWORD, ssl_context
+import sys
+from config import MQTT_BROKER, MQTT_PORT, MQTT_USERNAME, MQTT_PASSWORD, ssl_context, DEVICE_ID
+from telegram_bot_info import InfoBot
 
 # Настройка логирования
 logger = logging.getLogger(__name__)
@@ -73,11 +74,11 @@ class ManageBroker:
     async def publish(topic: str, command: str):
         try:
             async with Client(
-                hostname=MQTT_BROKER,
-                port=MQTT_PORT,
-                username=MQTT_USERNAME,
-                password=MQTT_PASSWORD,
-                tls_context=ssl_context,
+                    hostname=MQTT_BROKER,
+                    port=MQTT_PORT,
+                    username=MQTT_USERNAME,
+                    password=MQTT_PASSWORD,
+                    tls_context=ssl_context,
             ) as client:
                 await client.publish(topic, str(command))
                 logger.info(f'Отправлено: {command}')
@@ -86,18 +87,32 @@ class ManageBroker:
 
     @staticmethod
     async def subscribe(topic: str):
-        try:
-            async with Client(
-                hostname=MQTT_BROKER,
-                port=MQTT_PORT,
-                username=MQTT_USERNAME,
-                password=MQTT_PASSWORD,
-                tls_context=ssl_context,
-            ) as client:
-                await client.subscribe(topic)
-                logger.info(f'Подписка на тему: {topic}')
-                async for msg in client.messages:
-                    yield msg.payload.decode()
-        except Exception as e:
-            logger.error(f"Ошибка при подписке на тему '{topic}': {e}")
-            raise
+        attempt = 0
+
+        while attempt < 5:
+            try:
+                logger.info(f"[MQTT] Подключение к брокеру... Попытка {attempt + 1}")
+                async with Client(
+                        hostname=MQTT_BROKER,
+                        port=MQTT_PORT,
+                        username=MQTT_USERNAME,
+                        password=MQTT_PASSWORD,
+                        tls_context=ssl_context,
+                ) as client:
+                    await client.subscribe(topic)
+                    logger.info(f"[MQTT] Подписка на тему: {topic}")
+                    await InfoBot().send(f'Аппарат: {DEVICE_ID} подключился к серверу!')
+                    attempt = 0
+
+                    async for msg in client.messages:
+                        yield msg.payload.decode()
+
+            except Exception as e:
+                attempt += 1
+                logger.error(f"[MQTT] Ошибка при подписке: {e}")
+                logger.info(f"[MQTT] Повторная попытка через 6 секунд...")
+                await asyncio.sleep(6)
+
+        logger.critical("[MQTT] Превышено число попыток подключения. Завершаю.")
+        await InfoBot().send(text=f'Аппарат: {DEVICE_ID} - не смог подключиться к серверу, и завершил работу!')
+        sys.exit(1)

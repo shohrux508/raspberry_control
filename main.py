@@ -8,6 +8,13 @@ from manager import Ports, ManageBroker
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('C:\ComputerScience\PyCharm\Web Programming\raspberry_control2\logs\app.log')
+file_handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
